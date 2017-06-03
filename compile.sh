@@ -1,7 +1,3 @@
-#!/bin/sh
-
-###This compile script is shamelessly stolen from COMP 40
-
 clear
 
 set -e    # halt on first error
