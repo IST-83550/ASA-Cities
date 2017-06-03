@@ -3,83 +3,80 @@
 #include <assert.h>
 
 #include "kruskal.h"
+#include "mergesort.h"
 
-void make_set(set_values *setv, int x) {
-    setv[x].djs = x;
-	setv[x].rank = 0;	
+void makeSet(set_value *setv, int x) {
+    setv[x].p = x;
+	setv[x].rank = 0;
 }
 
-void lin(set_values *setv, int x, int y) {
+void link(set_value *setv, int x, int y) {
 
-	if(setv[x].rank > setv[y].rank){
-		setv[y].djs = x;
+	/*	If x and y are not in the same set.
+		(Should be previously checked). */
+	if(setv[x].rank > setv[y].rank) {
+		setv[y].p = x;
 	}
 	else {
-		setv[x].djs = y;
+		setv[x].p = y;
 		
 		if(setv[x].rank == setv[y].rank)
 			setv[y].rank++;
 	}	
 }
 
-int find_set(set_values *setv, int x) {
-	if(setv[x].djs != x)
-		setv[x].djs = find_set(setv, setv[x].djs);
-	return setv[x].djs; 		
-}
-
-void union_set(set_values *setv, int i, int j) {
-	lin(setv, find_set(setv, i), find_set(setv, j));
-}
-
-int cmpfunc(const void *a, const void *b) {
-  	edge *ia = ( edge *)a;
-    edge *ib = ( edge *)b;
-    return (int)(100.f*ia->cost - 100.f*ib->cost);
-}
-
-void kruskal(edge *edges, int V, int E, int* data) {
-	int i, total_cost = 0, count_edges = 0, count_airports = 0;
-	set_values *setv = NULL;
-
-	setv = malloc(V * sizeof(set_values));
-
-	/* printf("V:%d E:%d\n", V, E);
-	for (i = 0; i < E; i++) {
-		printf("%d %d %d\n", edges[i].v1, edges[i].v2, edges[i].cost);
+int findSet(set_value *setv, int x) {
+	if(setv[x].p != x) {
+		setv[x].p = findSet(setv, setv[x].p);		
 	}
-	printf("----------------\n"); */
+	return setv[x].p;
+}
+
+void unionSet(set_value *setv, int i, int j) {
+	link(setv, findSet(setv, i), findSet(setv, j));
+}
+
+void kruskal(edge **edges, int V, int E, int* data) {
+	int i, total_cost = 0, n_edges = 0, n_airports = 0;
+	set_value *setv = NULL;
+
+	setv = malloc(V * sizeof(set_value));
 
 	/* Make Set. */
 	for (i = 0; i < V; i++) {
-		make_set(setv, i);
+		makeSet(setv, i);
 	}
 
-	/* Sorts edges. */
-	/* FIXME - CHANGE SORT ALGORITHM. */
-	qsort(edges, E, sizeof(edge), cmpfunc);
+	/* Sorts edges (MergeSort). */
+	Sort(edges, 0, E - 1);
 
 	for (i = 0; i < E; i++) {
-		if (find_set(setv, edges[i].v1 - 1) != find_set(setv, edges[i].v2 - 1)) {
-			total_cost += edges[i].cost;
-			union_set(setv, edges[i].v1 - 1, edges[i].v2 - 1);
-			count_edges++;
-			if (edges[i].v1 == V || edges[i].v2 == V) {
-				count_airports++;
+		if (findSet(setv, edges[i]->v1 - 1) != findSet(setv, edges[i]->v2 - 1)) {
+			
+			total_cost += edges[i]->cost;
+			unionSet(setv, edges[i]->v1 - 1, edges[i]->v2 - 1);
+			n_edges++;
+
+			/* If one of the two vertexes is the dummy node
+				then an airport was used to build the MST. */
+			if (edges[i]->v1 == V || edges[i]->v2 == V) {
+				n_airports++;
 			}
 		}
 	}
 
-	if(count_edges != V - 1) {
-		data[INSUFICIENT] = 0;
+	/*	Updates data.
+		If the number of edges is different than V - 1
+		the MST doesnt cover all vertexes (insufficient). */
+	if(n_edges != V - 1) {
+		data[INSUFFICIENT] = 0;
 	}
 	else {
-		data[INSUFICIENT] = 1;
+		data[INSUFFICIENT] = 1;
 	}
-	
-	data[NUMAIRS] = count_airports;
+	data[NUMAIRS] = n_airports;
 	data[TOTALCOST] = total_cost;
 
 	free(setv);
-	
+
 }

@@ -1,49 +1,67 @@
+/*
+    Disjoint-Set data structure.
+    Operations: Make-Set, FindSet, UnionSet.
+    
+    Kruskal algorithm (Minimum Spanning Tree)
+*/
+
 #ifndef _KRUSKAL_H_
 #define _KRUSKAL_H_
 
-struct airport {
-	int vertex;
-	int cost;
-};
+/* ADT MergeSort Macros. */
+#define Item edge*
+#define ItemToSort edge**
+#define KeyToSort(A) A->cost
+#define less_sort(A, B) ( KeyToSort(A) <= KeyToSort(B) )
 
-/* Airport. */
-typedef struct airport airport_t;
+/*  Auxiliary data index macros. */
+/*  Insuficient index number. */
+#define INSUFFICIENT 0
 
-/* Auxiliary data index macros. */
-/* Insuficient index number. */
-#define INSUFICIENT 0
-
-/* Total MST cost index number. */
+/*  Total MST cost index number. */
 #define TOTALCOST 1
 
-/* Airports index number. */
+/*  Airports index number. */
 #define NUMAIRS 2
 
-/* Roads index number. */
-#define NUMRODS 3
+/*  Airport representation. */
+typedef struct airport {
+	int vertex;
+	int cost;
+} airport_t;
 
-typedef struct edge{
+/*  Graph edge representation. */
+typedef struct edge {
     int v1;
     int v2;
     int cost;
 } edge;
 
-typedef struct set_values{
-    int djs;
+/*  Set element. */
+typedef struct set_value {
+    int p;
     int rank;
-} set_values;
+} set_value;
 
-void make_set(set_values *setv, int x);
+/*  Creates a disjoint set to represent a set of vertexes. */
+void makeSet(set_value *setv, int x);
 
-void lin(set_values *setv, int x, int y);
+/*  Links two sets.
+    It should be previously checked if x and y are in different sets. */
+void link(set_value *setv, int x, int y);
 
-int find_set(set_values *setv, int x);
+/*  Identifies vertex's set.
+    Uses path compression. */
+int findSet(set_value *setv, int x);
 
-void union_set(set_values *setv, int i, int j);
+/*  Merges sets of vertexes together. */
+void unionSet(set_value *setv, int i, int j);
 
+/*  Comparison function to be used by the sort algorithm. */
 int cmpfunc (const void *a, const void *b);
 
-/* Minimum Spanning Tree - Kruskal algorithm. */
-void kruskal(edge *edges, int V, int E, int* data);
+/*  Executes the kruskal MST algorithm given the number
+    of vertexes (V) and edges (E) of the graph. */
+void kruskal(edge **edges, int V, int E, int* data);
 
-#endif
+#endif /* _KRUSKAL_H_ */
