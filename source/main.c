@@ -41,10 +41,10 @@ int main() {
 	/* Reads weighted edges (Roads). */
 	for (i = 0; i < E; i++) {
 		int u, v, w;
-    	edge* e = (edge*)malloc(sizeof(edge));		
-    	assert(scanf("%d %d %d", &u, &v, &w) == 3);
+    		edge* e = (edge*)malloc(sizeof(edge));		
+    		assert(scanf("%d %d %d", &u, &v, &w) == 3);
     	
-    	e->v1 = u;
+    		e->v1 = u;
 		e->v2 = v;
 		e->cost = w;
 
